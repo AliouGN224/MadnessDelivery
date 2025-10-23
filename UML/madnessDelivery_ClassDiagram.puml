@@ -1,0 +1,141 @@
+@startuml
+
+namespace URI_MadnessDelivery {
+
+class Joueurs{
+    - joueur : Joueur
+}
+
+class Joueur {
+    - id : uint
+    - nom : string
+    - prenom : string
+    - niveaux : Niveaux
+    ---
+    + Joueur(uint id, string nom, string prenom)
+    + string getNom()
+    + string getPrenom()
+    + uint getId()
+    + double getMeilleurScorePourLevel(Level difficulte)
+}
+
+class Niveaux{
+    - niveau : Niveau
+    ---
+    + Niveaux()
+    + Niveau getNiveau()
+    + void ajouterNiveau(Niveau niveau)
+}
+
+class Niveau{
+    - difficulte : Level
+    - scores : Scores
+    ---
+    + Niveau(Level difficulte)
+    + Niveau(Level difficulte, scores Scores)
+    + string getDifficulte()
+    + Scores getScores()
+}
+
+class Scores{
+    - score : Score
+    ---
+    + Scores()
+    + Scores(Score score)
+    + Score getScore()
+    + double getMeilleurScore()
+    + List<Score> getListeScore
+}
+
+class Score{
+    - valeurScore : uint
+    ---
+    + Score(uint score)
+    + uint getValeurScore()
+}
+
+enum Level{
+    FACILE
+    MOYEN
+    DIFFICILE
+}
+
+class Maisons{
+    - maison : Maison
+    ---
+    
+}
+
+class Maison{
+    - id : uint
+    - position : Vector2
+    - estALivrer : bool
+    - aEteLivrer : bool
+    ---
+    + Maison(uint id)
+    + Maison(uint id, Vector2 position)
+    + uint getId()
+    + Vector2 getPosition()
+    + bool estAlivrer()
+    + bool aEteLivrer()
+    + void setPosition(Vector2 position)
+    + void setEstALivrer(bool estALivrer)
+    + void setAEteLivrer(bool AEteLivre)
+}
+
+class Routes{
+    - route : Route
+    ---
+}
+
+class Route{
+    - position : Vector2
+    - type : TypeRoute
+    ---
+}
+
+enum TypeRoute{
+    PASSAGEPIETON
+    VIRAGE
+    DROITE
+    LIMITE
+    GIRATOIRE
+    DIRECTION3
+}
+
+class Livreur{
+    - position : Vector2
+    - direction : Vector2
+    ---
+}
+
+class Obstacle{
+
+}
+
+class MadnessDelivery {
+    - joueurs : Joueurs
+    - maisons : Maisons
+    - routes : Routes
+    - livreur : Livreur
+    ---
+}
+
+
+MadnessDelivery *-- "1" Joueurs
+MadnessDelivery *-- "1" Maisons
+MadnessDelivery *-- "1" Routes
+MadnessDelivery *-- "1" Livreur
+
+Joueurs *-- "0..*" Joueur
+Maisons *-- "1..*" Maison
+Routes *-- "1..*" Route
+
+Joueur *-- "1" Niveaux
+Niveaux *-- "0..*" Niveau
+Niveau *-- "1" Scores
+Scores *-- "0..*" Score
+
+
+}
+@enduml
