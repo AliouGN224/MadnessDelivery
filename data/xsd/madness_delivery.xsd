@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema version="1.0"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:deliv="http://www.univ-grenoble-alpes.fr/l3miage/delivery"
+        targetNamespace="http://www.univ-grenoble-alpes.fr/l3miage/delivery"
+        elementFormDefault="qualified">
+    
+    <!-- element racine -->
+    <element name="madnessDelivery" type="deliv:MadnessDelivery"/>
+    
+    <!-- Le type MadnessDelivery -->
+    
+    <complexType name="MadnessDelivery">
+        <sequence>
+            <element name="joueurs" type="deliv:Joueurs"/>
+            <element name="maisons" type="deliv:Maisons"/>
+            <element name="routes" type="deliv:Routes"/>
+            <element name="livreur" type="deliv:Livreur"/>
+        </sequence>
+    </complexType>
+
+    <!-- Le type Livreur -->
+    
+    <complexType name="Livreur">
+        <sequence>
+            <element name="position" type="deliv:Vecteur2"/>
+            <element name="direction" type="deliv:Vecteur2"/>
+        </sequence>
+    </complexType>
+
+    <!-- Le type Maisons -->
+    
+    <complexType name="Maisons">
+        <sequence>
+            <element name="maison" type="deliv:Maison" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+    
+
+    <!-- Le type Maison -->
+    <complexType name="Maison">
+        <sequence>
+            <element name="position" type="deliv:Vecteur2"/>
+            <element name="estALivrer" type="boolean"/>
+            <element name="aEteLivrer" type="boolean"/>
+        </sequence>
+        <attribute name="id" type="unsignedInt"/>
+    </complexType>
+
+    <!-- Le type Vecteur2 -->
+    
+    <complexType name="Vecteur2">
+        <sequence>
+            <element name="x" type="double"/>
+            <element name="y" type="double"/>
+        </sequence>
+    </complexType>
+
+    <!-- Le type Joueurs -->
+    
+    <complexType name="Joueurs">
+        <sequence>
+            <element name="joueurs" type="deliv:Joueur" maxOccurs="unbounded" />
+        </sequence>
+    </complexType>
+
+    <!-- Le type Joueur -->
+    
+    <complexType name="Joueur">
+        <sequence>
+            <element name="nom" type="string"/>
+            <element name="prenom" type="string"/>
+            <element name="niveaux" type="deliv:Niveaux"/>
+        </sequence>
+        <attribute name="id" type="unsignedInt"/>
+    </complexType>
+    
+    <!-- le type Niveaux -->
+    
+    <complexType name="Niveaux">
+        <sequence>
+            <element name="niveau" type="deliv:Niveau" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+    
+    <!-- le type Niveau -->
+    
+    <complexType name="Niveau">
+        <sequence>
+            <element name="difficulte" type="deliv:Level"/>
+            <element name="scores" type="deliv:Scores"/>
+        </sequence>
+    </complexType>
+
+    <!-- le type Level -->
+    
+    <simpleType name="Level">
+        <restriction base="string">
+            <enumeration value="FACILE"/>
+            <enumeration value="MOYEN"/>
+            <enumeration value="DIFFICILE"/>
+        </restriction>
+    </simpleType>
+
+    <!-- le type Scores -->
+    
+    <complexType name="Scores">
+        <sequence>
+            <element name="score" type="deliv:Score" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+    
+    
+    <!-- le type Score -->
+    
+    <complexType name="Score">
+        <sequence>
+            <element name="valeurScore" type="unsignedInt"/>
+        </sequence>
+    </complexType>
+
+    <!-- Le type Routes -->
+    
+    <complexType name="Routes">
+        <sequence>
+            <element name="route" type="deliv:Route" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+
+    <!-- Le type Route -->
+    
+    <complexType name="Route">
+        <sequence>
+            <element name="position" type="deliv:Vecteur2"/>
+            <element name="type" type="deliv:TypeRoute"/>
+        </sequence>
+    </complexType>
+
+    <!-- Le type TypeRoute -->
+    
+    <simpleType name="TypeRoute">
+        <restriction base="string">
+            <enumeration value="PASSAGEPIETON"/>
+            <enumeration value="VIRAGE"/>
+            <enumeration value="DROITE"/>
+            <enumeration value="LIMITE"/>
+            <enumeration value="GIRATOIRE"/>
+            <enumeration value="DIRECTION3"/>
+        </restriction>
+    </simpleType>
+</schema>
