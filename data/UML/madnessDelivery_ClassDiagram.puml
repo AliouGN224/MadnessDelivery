@@ -3,7 +3,12 @@
 namespace URI_MadnessDelivery {
 
 class Joueurs{
-    - joueur : Joueur
+    - listeJoueurs : List<Joueur>
+    - actif : bool
+    ---
+    + Joueur identifierJoueur(string nom, string prenom)
+    + void ajouterJoueur(Joueur joueur)
+    + List<Joueur> getTousLesJoueurs()
 }
 
 class Joueur {
@@ -17,34 +22,46 @@ class Joueur {
     + string getPrenom()
     + uint getId()
     + double getMeilleurScorePourLevel(Level difficulte)
+    + void enregistrerScore(Level niveau, Score score)
 }
 
 class Niveaux{
-    - niveau : Niveau
+    - listeNiveaux : List<Niveau>
     ---
     + Niveaux()
     + Niveau getNiveau()
+    + Niveau getNiveauParDifficulte(Level difficulte)
     + void ajouterNiveau(Niveau niveau)
+    + bool existeNiveau(Level difficulte)
 }
 
 class Niveau{
     - difficulte : Level
     - scores : Scores
+    - tempsLimite : int
+    - nbMaisonsALivrer : int
+    - maisonsALivrer : List<uint> // ID des maisons à livrer dans ce niveau
     ---
     + Niveau(Level difficulte)
-    + Niveau(Level difficulte, scores Scores)
+    + Niveau(Level difficulte, Scores scores)
     + string getDifficulte()
     + Scores getScores()
+    + int getTempsLimite()
+    + int getNombreDeLivraisons()
+    + void initialiserMaisonsALivrer(List<Maison> toutesLesMaisons)
 }
 
 class Scores{
-    - score : Score
+    - listeScores : List<Score>
     ---
     + Scores()
     + Scores(Score score)
     + Score getScore()
     + double getMeilleurScore()
     + List<Score> getListeScore
+    + void ajouterScore(Score score)
+    + double calculerMoyenne()
+    + Score getDernierScore()
 }
 
 class Score{
@@ -61,9 +78,10 @@ enum Level{
 }
 
 class Maisons{
-    - maison : Maison
+    - listeMaisons : List<Maison>
     ---
-    
+    + List<Maison> getToutesLesMaisons()
+    + Maison getMaisonParId(uint id)
 }
 
 class Maison{
@@ -78,20 +96,25 @@ class Maison{
     + Vector2 getPosition()
     + bool getEstAlivrer()
     + bool getAEteLivrer()
+    + void livrer()
     + void setPosition(Vector2 position)
     + void setEstALivrer(bool estALivrer)
     + void setAEteLivrer(bool AEteLivre)
 }
 
 class Routes{
-    - route : Route
+    - listeRoutes : List<Route>
     ---
+    + List<Route> getToutesLesRoutes()
 }
 
 class Route{
     - position : Vector2
     - type : TypeRoute
     ---
+    + Route(Vector2 position, TypeRoute type)
+    + Vector2 getPosition()
+    + TypeRoute getType()
 }
 
 enum TypeRoute{
@@ -107,6 +130,17 @@ class Livreur{
     - position : Vector2
     - direction : Vector2
     ---
+    + Vector2 getPosition()
+    + void setPosition(Vector2 position)
+    + void deplacer(Direction direction)
+    + void verifierLivraison(List<Maison> maisons)
+}
+
+enum Direction {
+    HAUT
+    BAS
+    GAUCHE
+    DROITE
 }
 
 class Obstacle{
@@ -119,6 +153,20 @@ class MadnessDelivery {
     - routes : Routes
     - livreur : Livreur
     ---
+    + void demarrerJeu()
+    + void afficherMenu()
+    + void lancerNiveau(Joueur joueur, Level difficulte)
+    + void verifierFinPartie()
+    + void afficherResultats()
+}
+
+class Vector2 {
+    - x : double
+    - y : double
+    ---
+    + Vector2(double x, double y)
+    + double getX()
+    + double getY()
 }
 
 

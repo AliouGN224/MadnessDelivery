@@ -1,0 +1,40 @@
+@startuml
+actor JoueurUI as Joueur
+participant "MadnessDelivery" as MD
+participant "Joueurs"
+participant "Joueur"
+
+Joueur -> MD : choisit 'S'identifier' ou 'Nouveau joueur'
+
+alt S'identifier
+    Joueur -> MD : saisirIdentite(nom, prenom)
+    activate MD
+    MD -> Joueurs : identifierJoueur(nom, prenom)
+    activate Joueurs
+    Joueurs --> MD : Joueur existant ou null
+    deactivate Joueurs
+
+    alt Joueur trouvé
+        MD --> Joueur : afficher écran choix de niveau
+    else Joueur non trouvé
+        MD --> Joueur : afficher message "Joueur inconnu"
+        Joueur -> MD : ressaisir nom/prenom
+        MD -> Joueurs : identifierJoueur(nom, prenom)
+        activate Joueurs
+        Joueurs --> MD : Joueur existant ou null
+        deactivate Joueurs
+        MD --> Joueur : afficher écran choix de niveau
+    end
+    deactivate MD
+
+else Nouveau joueur
+    Joueur -> MD : saisirNomEtPrenom(nom, prenom)
+    activate MD
+    MD -> Joueurs : ajouterJoueur(new Joueur(id, nom, prenom))
+    activate Joueurs
+    Joueurs --> MD : Joueur nouvellement ajouté
+    deactivate Joueurs
+    MD --> Joueur : afficher écran choix de niveau
+    deactivate MD
+end
+@enduml
