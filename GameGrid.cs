@@ -1,3 +1,6 @@
+using System.Numerics;
+using MadnessDelivery;
+
 public class GameGrid
 {
     public const int TILE_SIZE = 64;
@@ -17,7 +20,7 @@ public class GameGrid
     {
         for (int x = 0; x < COLS; x++)
             for (int y = 0; y < ROWS; y++)
-                Cells[x, y] = CellType.Herbe;
+                Cells[x, y] = CellType.Herbre;
     }
 
     // Convertir case → position écran
