@@ -1,0 +1,30 @@
+@startuml
+    actor JoueurUI as Joueur
+    participant "MadnessDelivery" as MD
+    participant "Joueur"
+    participant "Niveaux"
+    participant "Niveau"
+    participant "Maisons"
+    
+    Joueur -> MD : sélectionnerNiveau(Level)
+    activate MD
+    MD -> Joueur : getNiveauParDifficulte(Level)
+    activate Joueur
+    Joueur -> Niveaux : getNiveauParDifficulte(Level)
+    activate Niveaux
+    Niveaux --> Joueur : Niveau ou null
+    deactivate Niveaux
+    
+    alt Niveau inexistant
+        Joueur -> Niveaux : ajouterNiveau(new Niveau(Level))
+    end
+    deactivate Joueur
+    
+    MD -> Niveau : initialiserMaisonsALivrer(Maisons)
+    activate Niveau
+    Niveau --> MD : confirmation
+    deactivate Niveau
+    
+    MD --> Joueur : afficher écran de jeu (carte, timer, maisons)
+    deactivate MD
+@enduml

@@ -15,7 +15,7 @@ public class Sprite
 
     public Texture2D _Texture { get => _texture; init => _texture = value; }
     public int _Size { get => _size; set => _size = value >= _sizeMin ? value : _sizeMin; }
-    public Rectangle _Rect { get => new Rectangle((int)_position.X, (int)_position.Y, _size, _size); }
+    public Rectangle _Rect { get => new Rectangle((int) _position.X, (int) _position.Y, _size, _size); }
 
     public Sprite(Texture2D texture, Vector2 position, int size) {
         _Texture = texture;
@@ -26,19 +26,19 @@ public class Sprite
     public void Update(GameTime gameTime) {
         if (Keyboard.GetState().IsKeyDown(Keys.Up))
         {
-            _speed.X += 1.1f;
+            _speed.Y -= 0.5f;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Down))
         {
-            _speed.X -= 1.1f;
+            _speed.Y += 0.5f;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Right))
         {
-            _speed.Y += 0.5f;
+            _speed.X += 0.5f;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Left))
         {
-            _speed.Y -= 0.5f;
+            _speed.X -= 0.5f;
         }
 
         _position.X += _speed.X;
