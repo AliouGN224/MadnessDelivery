@@ -1,5 +1,6 @@
-using System.Numerics;
-using MadnessDelivery;
+using Microsoft.Xna.Framework;
+
+namespace MadnessDelivery;
 
 public class GameGrid
 {
@@ -19,8 +20,8 @@ public class GameGrid
     public void ResetEnHerbe()
     {
         for (int x = 0; x < COLS; x++)
-            for (int y = 0; y < ROWS; y++)
-                Cells[x, y] = CellType.Herbre;
+        for (int y = 0; y < ROWS; y++)
+            Cells[x, y] = CellType.Herbre;
     }
 
     // Convertir case → position écran
