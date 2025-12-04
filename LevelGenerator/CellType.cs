@@ -2,8 +2,8 @@ namespace MadnessDelivery;
 
 public enum CellType
 {
-    Herbre,
-    Route,
-    Maison,
-    Arbre
+    HERBRE,
+    ROUTE,
+    MAISON,
+    ARBRE
 }

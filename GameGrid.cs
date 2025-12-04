@@ -4,10 +4,10 @@ namespace MadnessDelivery;
 
 public class GameGrid
 {
-    public const int TILE_SIZE = 64;
+    public const int TILE_SIZE = 49;
 
-    public const int COLS = 27;
-    public const int ROWS = 17;
+    public const int COLS = 40;
+    public const int ROWS = 34;
 
     public Vector2 offset;
     public CellType[,] Cells { get; set; }
@@ -22,11 +22,11 @@ public class GameGrid
     {
         for (int x = 0; x < COLS; x++)
         for (int y = 0; y < ROWS; y++)
-            Cells[x, y] = CellType.Herbre;
+            Cells[x, y] = CellType.HERBRE;
     }
 
     // Convertir case → position écran
-    public Vector2 ToWorld(int col, int row)
+    public Vector2 VersPositionEcran(int col, int row)
     {
         float isoX = (col - row) * (TILE_SIZE / 2f);
         float isoY = (col + row) * (TILE_SIZE / 4f);

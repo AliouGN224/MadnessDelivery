@@ -6,5 +6,6 @@ public enum TypeRoute
     VIRAGE,
     PASSAGEPIETON,
     GIRATOIRE,
-    DIRECTION3
+    DIRECTION3,
+    LIMITE
 }
