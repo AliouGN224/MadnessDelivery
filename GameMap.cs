@@ -12,16 +12,20 @@ public class GameMap
     private GameGrid grid;
     private Routes routes;
     private Maisons maisons;
-    private Joueur joueur;
+    private Livreur livreur;
 
     
     private Texture2D texHerbe;
     private Dictionary<TypeRoute, Dictionary<Orientation, Texture2D>> texturesRoutes;
     private Dictionary<TypeMaison, Texture2D> texturesMaisons;
-
+    private Dictionary<Orientation, Texture2D> texturesLivreur;
+    
+    private Orientation orientationCouranteLivreur = Orientation.NORD_EST;
+    
     public float Echelle = 0.49f; // 50% de la taille d’origine
     public float EchelleMaison = 0.30f;  //  0.70 et 0.90
-
+    public float EchelleLivreur = 0.05f;
+    private KeyboardState oldState;
     
     public GameMap(GameGrid grid, Routes routes, Maisons maisons)
     {
@@ -31,14 +35,31 @@ public class GameMap
 
     }
     
+    public void Update(GameTime gameTime)
+    {
+        GererDeplacementLivreur(gameTime);
+    }
+    
     // Chargement des textures
     public void LoadContent(ContentManager content)
     {
-        Texture2D texJoueur = content.Load<Texture2D>("livreur/livreurSE");
-        Vector2 pointDepart = grid.VersPositionEcran( 10, 15 ); 
-        joueur = new Joueur(texJoueur, pointDepart);
-        
         texHerbe = content.Load<Texture2D>("vegetations/lightGreenBorders");
+        // ---------- Texture livreur et initailisation du livreur ---------------
+        texturesLivreur = new Dictionary<Orientation, Texture2D>();
+        texturesLivreur[Orientation.NORD_EST]  = content.Load<Texture2D>("livreur/livreurNE");
+        texturesLivreur[Orientation.SUD_EST]   = content.Load<Texture2D>("livreur/livreurSE");
+        texturesLivreur[Orientation.SUD_OUEST] = content.Load<Texture2D>("livreur/livreurSW");
+        texturesLivreur[Orientation.NORD_OUEST]= content.Load<Texture2D>("livreur/livreurNW");
+        
+        int colDepart = GameGrid.COLS / 2;
+        int rowDepart = GameGrid.ROWS / 2;
+        livreur = new Livreur
+        {
+            Position = new Vector2(colDepart, rowDepart),
+            Orientation = Orientation.SUD_EST,  // orientation de départ
+            Vitesse = 0.1f
+        };
+        orientationCouranteLivreur = Orientation.SUD_EST;
         
         // ---------- Texture Routes---------------
         texturesRoutes = new Dictionary<TypeRoute, Dictionary<Orientation, Texture2D>>();
@@ -103,13 +124,7 @@ public class GameMap
         DessinerHerbe(spriteBatch);
         DessinerRoutes(spriteBatch);
         DessinerMaisons(spriteBatch);
-        joueur.Draw(spriteBatch);
-
-    }
-    
-    public void Update(GameTime gameTime)
-    {
-        joueur.Update(gameTime, grid);
+        DessinerLivreur(spriteBatch);
     }
     
     // Pour Herbe
@@ -186,6 +201,117 @@ public class GameMap
                 0f
             );
         }
+    }
+    
+    private void DessinerLivreur(SpriteBatch sb)
+    {
+        if (livreur == null)
+            return;
+
+        // Position grille → position écran
+        int col = (int)livreur.Position.X;
+        int row = (int)livreur.Position.Y;
+
+        Vector2 posEcran = grid.VersPositionEcran(col, row);
+
+        Texture2D tex = texturesLivreur[orientationCouranteLivreur];
+
+        sb.Draw(
+            tex,
+            posEcran,
+            null,
+            Color.White,
+            0f,
+            Vector2.Zero,
+            EchelleLivreur,        
+            SpriteEffects.None,
+            1f
+        );
+    }
+    
+    
+    private void GererDeplacementLivreur(GameTime gameTime)
+    {
+        KeyboardState ks = Keyboard.GetState();
+        
+        bool pressUp    = ks.IsKeyDown(Keys.Up)    && oldState.IsKeyUp(Keys.Up);
+        bool pressDown  = ks.IsKeyDown(Keys.Down)  && oldState.IsKeyUp(Keys.Down);
+        bool pressLeft  = ks.IsKeyDown(Keys.Left)  && oldState.IsKeyUp(Keys.Left);
+        bool pressRight = ks.IsKeyDown(Keys.Right) && oldState.IsKeyUp(Keys.Right);
+        
+        
+        // Position actuelle en grille
+        int col = (int)livreur.Position.X;
+        int row = (int)livreur.Position.Y;
+
+        int newCol = col;
+        int newRow = row;
+        
+        Orientation newOri = livreur.Orientation;
+        
+        // Gestion des directions 
+        if (pressUp)
+        {
+            newRow -= 1;
+            newOri = Orientation.NORD_EST;
+        }
+        else if (pressDown)
+        {
+            newRow += 1;
+            newOri = Orientation.SUD_OUEST;
+        }
+        else if (pressLeft)
+        {
+            newCol -= 1;
+            newOri = Orientation.NORD_OUEST;
+        }
+        else if (pressRight)
+        {
+            newCol += 1;
+            newOri = Orientation.SUD_EST;
+        }
+        else
+        {
+            oldState = ks;
+            return; // si aucune touche pressé, rien a faire
+        }
+
+        if (EstDemiTour(newOri, livreur.Orientation))
+        {
+            oldState = ks;
+            return;  // on refuse le demi-tour
+        }
+        
+        // Verifier bornes grille
+        if (newCol < 0 || newCol >= GameGrid.COLS || newRow < 0 || newRow >= GameGrid.ROWS)
+        {
+            oldState = ks;
+            return;
+        }
+        
+        // Verifier route
+        if (grid.Cells[newCol, newRow] != CellType.ROUTE)
+        {
+            oldState = ks;
+            return;
+        }
+        
+        // application du déplacement
+        livreur.Position = new Vector2(newCol, newRow);
+        livreur.Orientation = newOri;
+        orientationCouranteLivreur = newOri;
+
+        oldState = ks;  // mémoriser létat des touches
+    }
+    
+    // Pour verifier si c'est sens opposé
+    private bool EstDemiTour(Orientation nouvelle, Orientation ancienne)
+    {
+        return
+            (ancienne == Orientation.NORD_EST  && nouvelle == Orientation.SUD_OUEST) ||
+            (ancienne == Orientation.SUD_OUEST && nouvelle == Orientation.NORD_EST) ||
+            (ancienne == Orientation.NORD_OUEST && nouvelle == Orientation.SUD_EST) ||
+            (ancienne == Orientation.SUD_EST   && nouvelle == Orientation.NORD_OUEST);
     }
     
 }
