@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using MadnessDelivery.GameLogic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,6 +13,11 @@ public class Game1 : Game
     private Sprite _ship; // instance de Sprite
     private static ContentManager _content;
     
+    private GameGrid grid;
+    private GameMap gameMap;
+    private Routes routes;
+    private Maisons maisons;
+    
 
     public Game1()
     {
@@ -22,14 +28,56 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
+        grid = new GameGrid();
+        routes = new Routes();
+        maisons = new Maisons();
+        gameMap = new GameMap(grid, routes, maisons);
+        
+        
+        // Taille fenêtre 
+        _graphics.PreferredBackBufferWidth = 1950;
+        _graphics.PreferredBackBufferHeight = 1100;
+        _graphics.ApplyChanges();
+        
+        grid.CenterALaFenetre(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        
+        
+ /*       // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        int c0 = GameGrid.COLS / 2;
+        int r0 = GameGrid.ROWS / 2;
+
+        // 4 virages
+        routes.AjouterRoute(new Route(2, 2,     TypeRoute.VIRAGE,      Orientation.NORD_EST));
+        grid.Cells[2, 2] = CellType.Route;
+
+        routes.AjouterRoute(new Route(2, c0,     TypeRoute.VIRAGE,      Orientation.SUD_EST));
+        grid.Cells[2, c0] = CellType.Route;
+
+        routes.AjouterRoute(new Route(r0,     2,     TypeRoute.VIRAGE,      Orientation.NORD_OUEST));
+        grid.Cells[r0, 2] = CellType.Route;
+
+        routes.AjouterRoute(new Route(r0, c0,     TypeRoute.VIRAGE,      Orientation.SUD_OUEST));
+        grid.Cells[r0, c0] = CellType.Route;
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ */       
+        
+        VilleGenerateur.ConstruireVilleManuelle(grid, routes, maisons); 
+        /*grid.Cells[10, 8] = CellType.Route;
+        routes.AjouterRoute(
+            new Route(new Vector2(10, 8), TypeRoute.DROITE, Orientation.NORD_EST)
+        );*/
+        
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-        Texture2D shipTexture = Content.Load<Texture2D>("ball");
-        _ship = new Sprite(shipTexture, new Vector2(5, 5), 10);
+        gameMap.LoadContent(Content);
+        //Texture2D shipTexture = Content.Load<Texture2D>("vegetations/lightGreen");
+        //_ship = new Sprite(shipTexture, new Vector2(5, 5), 10);
     }
 
     protected override void Update(GameTime gameTime)
@@ -37,7 +85,8 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-        _ship.Update(gameTime);
+        //_ship.Update(gameTime);
+        gameMap.Update(gameTime);
         base.Update(gameTime);
     }
 
@@ -46,7 +95,8 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        _ship.Draw(_spriteBatch);
+        //_ship.Draw(_spriteBatch);
+        gameMap.Draw(_spriteBatch);
         _spriteBatch.End();
 
         base.Draw(gameTime);
