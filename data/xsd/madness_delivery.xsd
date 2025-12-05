@@ -24,7 +24,8 @@
     <complexType name="Livreur">
         <sequence>
             <element name="position" type="deliv:Vecteur2"/>
-            <element name="direction" type="deliv:Vecteur2"/>
+            <element name="orientation" type="deliv:Vecteur2"/>
+            <element name="vitesse" type="float"/>
         </sequence>
     </complexType>
 
@@ -43,6 +44,7 @@
             <element name="position" type="deliv:Vecteur2"/>
             <element name="estALivrer" type="boolean"/>
             <element name="aEteLivrer" type="boolean"/>
+            <element name="type" type="deliv:TypeMaison"/>
         </sequence>
         <attribute name="id" type="unsignedInt"/>
     </complexType>
@@ -133,6 +135,7 @@
         <sequence>
             <element name="position" type="deliv:Vecteur2"/>
             <element name="type" type="deliv:TypeRoute"/>
+            <element name="orientation" type="deliv:Orientation"/>
         </sequence>
     </complexType>
 
@@ -148,4 +151,27 @@
             <enumeration value="DIRECTION3"/>
         </restriction>
     </simpleType>
+
+    <simpleType name="Orientation">
+        <restriction base="string">
+            <enumeration value="NORD_EST"/>
+            <enumeration value="NORD_OUEST"/>
+            <enumeration value="SUD_EST"/>
+            <enumeration value="SUD_OUEST"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="TypeMaison">
+        <restriction base="string">
+            <enumeration value="DEPART"/>
+            <enumeration value="MAISON_A"/>
+            <enumeration value="MAISON_B"/>
+            <enumeration value="MAISON_C"/>
+            <enumeration value="MAISON_C"/>
+            <enumeration value="BOUTIQUE_A"/>
+            <enumeration value="BOUTIQUE_B"/>
+        </restriction>
+    </simpleType>
+    
+    
 </schema>
