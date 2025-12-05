@@ -11,7 +11,7 @@ class Joueurs{
     + List<Joueur> getTousLesJoueurs()
 }
 
-class Joueur {
+class Joueur { 
     - id : uint
     - nom : string
     - prenom : string
