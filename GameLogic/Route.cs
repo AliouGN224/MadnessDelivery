@@ -16,6 +16,14 @@ public class Route
        get => position;
        set => position = value;
    }
+   
+   [XmlIgnore]
+   public Vector2 PositionJeu
+   {
+       get => position.ToVector2();
+       set => position = Vecteur2.FromVector2(value);
+   }
+   
     private TypeRoute typeRoute;
 
     [XmlElement("type")]

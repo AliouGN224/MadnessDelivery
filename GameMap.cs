@@ -55,7 +55,7 @@ public class GameMap
         int rowDepart = GameGrid.ROWS / 2;
         livreur = new Livreur
         {
-            Position = new Vector2(colDepart, rowDepart),
+            PositionJeu = new Vector2(colDepart, rowDepart),
             Orientation = Orientation.SUD_EST,  // orientation de départ
             Vitesse = 0.1f
         };
@@ -178,16 +178,16 @@ public class GameMap
     {
         foreach (Maison m in maisons.getToutesLesMaisons())
         {
-            Vector2 grillePos = m.getPosition();
+            Vecteur2 grillePos = m.Position;
 
             // Conversion grille → écran
             Vector2 posEcran = grid.VersPositionEcran(
-                (int)grillePos.X,
-                (int)grillePos.Y
+                (int)grillePos._X,
+                (int)grillePos._Y
             );
 
             // Récupérer la texture selon TypeMaison
-            Texture2D tex = texturesMaisons[m.getTypeMaison()];
+            Texture2D tex = texturesMaisons[m._Type];
 
             sb.Draw(
                 tex,
@@ -209,8 +209,8 @@ public class GameMap
             return;
 
         // Position grille → position écran
-        int col = (int)livreur.Position.X;
-        int row = (int)livreur.Position.Y;
+        int col = (int)livreur.PositionJeu.X;
+        int row = (int)livreur.PositionJeu.Y;
 
         Vector2 posEcran = grid.VersPositionEcran(col, row);
 
@@ -241,8 +241,8 @@ public class GameMap
         
         
         // Position actuelle en grille
-        int col = (int)livreur.Position.X;
-        int row = (int)livreur.Position.Y;
+        int col = (int)livreur.PositionJeu.X;
+        int row = (int)livreur.PositionJeu.Y;
 
         int newCol = col;
         int newRow = row;
@@ -297,7 +297,7 @@ public class GameMap
         }
         
         // application du déplacement
-        livreur.Position = new Vector2(newCol, newRow);
+        livreur.PositionJeu = new Vector2(newCol, newRow);
         livreur.Orientation = newOri;
         orientationCouranteLivreur = newOri;
 

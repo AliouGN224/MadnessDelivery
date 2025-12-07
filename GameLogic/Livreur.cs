@@ -1,21 +1,25 @@
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-
 namespace MadnessDelivery.GameLogic;
 
 public class Livreur
 {
-    private Vector2 position;   
+    private Vecteur2 position;   
     private Orientation orientation; 
     private float vitesse;
     
     [XmlElement("position")]
-    public Vector2 Position
+    public Vecteur2 Position
     {
         get => position;
         set => position = value;
+    }
+    
+    [XmlIgnore]
+    public Vector2 PositionJeu
+    {
+        get => position.ToVector2();
+        set => position = Vecteur2.FromVector2(value);
     }
     
     [XmlElement("orientation")]

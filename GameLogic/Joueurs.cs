@@ -26,7 +26,7 @@ public class Joueurs
         if (this.joueurs != null)
         {
             int i = 0;
-            while ((this.joueurs[i].JoueurId != id) && (i < this.joueurs.Count))
+            while ((i < this.joueurs.Count) && (this.joueurs[i].JoueurId != id))
             {
                 i++;
             }

@@ -16,11 +16,12 @@ public class Routes
         get => routes; 
         set => routes = value; 
     }
+    
 
     // Ajouter une route
     public void AjouterRoute(Route route)
     {
-        routes.Add(route); ;
+        routes.Add(route);
     }
 
     // Récupérer une route à une position (col, row)
@@ -30,7 +31,7 @@ public class Routes
         if (this.routes != null)
         {
             int i = 0;
-            while (((this.routes[i].Position._X != col) && (this.routes[i].Position._Y != row)) && (i < this.routes.Count))
+            while ((i < this.routes.Count) && ((this.routes[i].Position._X != col) && (this.routes[i].Position._Y != row)))
             {
                 i++;
             }

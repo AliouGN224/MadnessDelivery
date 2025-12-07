@@ -1,3 +1,4 @@
+using MadnessDelivery.GameLogic;
 using Microsoft.Xna.Framework;
 
 namespace MadnessDelivery;
@@ -31,7 +32,7 @@ public class GameGrid
         float isoX = (col - row) * (TILE_SIZE / 2f);
         float isoY = (col + row) * (TILE_SIZE / 4f);
 
-        return new Vector2(isoX, isoY) + offset;
+        return new Vector2(isoX + offset.X, isoY + isoY);
     }
      
 

@@ -247,7 +247,11 @@ public class VilleGenerateur
 
             grid.Cells[col, row] = CellType.ROUTE;
             routes.AjouterRoute(
-                new Route(col, row, TypeRoute.DROITE, Orientation.NORD_EST)
+                new Route {
+                    Orientation = Orientation.NORD_EST,
+                    Position = new Vecteur2 { _X = col, _Y = row },
+                    Type = TypeRoute.DROITE
+                }
             );
         }
     }
@@ -264,7 +268,11 @@ public class VilleGenerateur
 
             grid.Cells[col, row] = CellType.ROUTE;
             routes.AjouterRoute(
-                new Route(col, row, TypeRoute.DROITE, Orientation.NORD_OUEST)
+                new Route {
+                    Orientation = Orientation.NORD_OUEST,
+                    Position = new Vecteur2 { _X = col, _Y = row },
+                    Type = TypeRoute.DROITE
+                }
             );
         }
     }
@@ -276,7 +284,11 @@ public class VilleGenerateur
 
         grid.Cells[col, row] = CellType.ROUTE;
         routes.AjouterRoute(
-            new Route(col, row, TypeRoute.GIRATOIRE, Orientation.NORD_EST)
+            new Route {
+                Orientation = Orientation.NORD_EST,
+                Position = new Vecteur2 { _X = col, _Y = row },
+                Type = TypeRoute.GIRATOIRE
+            }
         );
     }
 
@@ -287,7 +299,11 @@ public class VilleGenerateur
 
         grid.Cells[col, row] = CellType.ROUTE;
         routes.AjouterRoute(
-            new Route(col, row, TypeRoute.DIRECTION3, orientation)
+            new Route {
+                Orientation = orientation,
+                Position = new Vecteur2 { _X = col, _Y = row },
+                Type = TypeRoute.DIRECTION3
+            }
         );
     }
 
@@ -298,7 +314,11 @@ public class VilleGenerateur
 
         grid.Cells[col, row] = CellType.ROUTE;
         routes.AjouterRoute(
-            new Route(col, row, TypeRoute.VIRAGE, orientation)
+            new Route {
+                Orientation = orientation,
+                Position = new Vecteur2 { _X = col, _Y = row },
+                Type = TypeRoute.VIRAGE
+            }
         );
     }
 
@@ -309,7 +329,11 @@ public class VilleGenerateur
 
         grid.Cells[col, row] = CellType.ROUTE;
         routes.AjouterRoute(
-            new Route(col, row, TypeRoute.LIMITE, orientation)
+            new Route {
+                Orientation = orientation,
+                Position = new Vecteur2 { _X = col, _Y = row },
+                Type = TypeRoute.LIMITE
+            }
         );
     }
 
@@ -320,7 +344,11 @@ public class VilleGenerateur
 
         grid.Cells[col, row] = CellType.ROUTE;
         routes.AjouterRoute(
-            new Route(col, row, TypeRoute.PASSAGEPIETON, orientation)
+            new Route {
+                Orientation = orientation,
+                Position = new Vecteur2 { _X = col, _Y = row },
+                Type = TypeRoute.PASSAGEPIETON
+            }
         );
     }
     
@@ -338,7 +366,14 @@ public class VilleGenerateur
 
         grid.Cells[col, row] = CellType.MAISON;
 
-        Maison m = new Maison(maisons.GetNextId(), new Vector2(col, row), typeMaison);
+        Maison m = new Maison
+        {
+            _Id = maisons.GetNextId(),
+            _Type = typeMaison,
+            AEteLivrer = false,
+            EstALivrer = false,
+            Position = new Vecteur2 { _X = col, _Y = row },
+        };
         maisons.AjouterMaison(m);
     }
 }

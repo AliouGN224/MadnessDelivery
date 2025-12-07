@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using MadnessDelivery.GameLogic;
 using Microsoft.Xna.Framework;
@@ -74,7 +75,7 @@ public class Game1 : Game
     protected override void Initialize()
     {
         grid = new GameGrid();
-        routes = new Routes();
+        routes = new Routes{ListeRoute = new List<Route>()};
         maisons = new Maisons();
         gameMap = new GameMap(grid, routes, maisons);
         
