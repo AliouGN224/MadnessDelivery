@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Xml.Serialization;
 
 namespace MadnessDelivery.GameLogic;
@@ -51,4 +52,13 @@ public class MadnessDelivery
             }
         }
     }
+    
+    public void serialiserMadnessDelivery(string filepath)
+    {
+        using (var writer = new StreamWriter(filepath))
+        {
+            var xmlMadness = new XmlSerializer(typeof(MadnessDelivery));
+            xmlMadness.Serialize(writer, this);
+        }
+    } 
 }
