@@ -6,10 +6,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
+using MadnessDelivery.GameLogic;
 namespace MadnessDelivery;
-[XmlRoot("madnessDelivery", Namespace = "http://www.univ-grenoble-alpes.fr/l3miage/delivery")]
-[Serializable]
+
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
@@ -19,7 +18,7 @@ public class Game1 : Game
     
     private GameGrid grid;
     private GameMap gameMap;
-    private Routes routes;
+    /*private Routes routes;
 
     [XmlElement("routes")]
     public Routes Routes
@@ -63,7 +62,7 @@ public class Game1 : Game
             }
         }
     }
-    
+    */
 
     public Game1()
     {
@@ -75,9 +74,16 @@ public class Game1 : Game
     protected override void Initialize()
     {
         grid = new GameGrid();
-        routes = new Routes{ListeRoute = new List<Route>()};
-        maisons = new Maisons();
-        gameMap = new GameMap(grid, routes, maisons);
+        
+        GameLogic.MadnessDelivery madnessDelivery = new GameLogic.MadnessDelivery
+        {
+            _Routes = new Routes{ListeRoute = new List<Route>()},
+            _Joueurs = new Joueurs{_Joueurs = new List<Joueur>()},
+            _Maisons = new Maisons{_ListeMaisons = new List<Maison>()}
+        };
+        /*routes = new Routes{ListeRoute = new List<Route>()};
+        maisons = new Maisons();*/
+        gameMap = new GameMap(grid, madnessDelivery._Routes, madnessDelivery._Maisons);
         
         
         // Taille fenêtre 
@@ -109,7 +115,7 @@ public class Game1 : Game
         // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */       
         
-        VilleGenerateur.ConstruireVilleManuelle(grid, routes, maisons); 
+        VilleGenerateur.ConstruireVilleManuelle(grid, madnessDelivery._Routes, madnessDelivery._Maisons); 
         /*grid.Cells[10, 8] = CellType.Route;
         routes.AjouterRoute(
             new Route(new Vector2(10, 8), TypeRoute.DROITE, Orientation.NORD_EST)
