@@ -229,6 +229,9 @@ public class VilleGenerateur
 
        // Boutique près de l'intersection droite au centre
        PlacerMaison(grid, maisons, colVertical3 + 2, rowPrincipale2 - 2, TypeMaison.BOUTIQUE_B);
+       
+       GameLogic.MadnessDelivery madness = new GameLogic.MadnessDelivery{_Routes = routes, _Maisons = maisons};
+       madness.serialiserMadnessDelivery("../../../data/xml/Madness.xml");
     }
 
     // ---------------------------------------------------------
@@ -376,4 +379,5 @@ public class VilleGenerateur
         };
         maisons.AjouterMaison(m);
     }
+    
 }
