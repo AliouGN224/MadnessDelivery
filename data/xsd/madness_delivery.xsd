@@ -53,8 +53,8 @@
     
     <complexType name="Vecteur2">
         <sequence>
-            <element name="x" type="double"/>
-            <element name="y" type="double"/>
+            <element name="X" type="int"/>
+            <element name="Y" type="int"/>
         </sequence>
     </complexType>
 
