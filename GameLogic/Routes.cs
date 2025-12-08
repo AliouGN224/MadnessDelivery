@@ -31,7 +31,7 @@ public class Routes
         if (this.routes != null)
         {
             int i = 0;
-            while ((i < this.routes.Count) && ((this.routes[i].Position._X != col) && (this.routes[i].Position._Y != row)))
+            while ((i < this.routes.Count) && ((this.routes[i].Position._X != col) || (this.routes[i].Position._Y != row)))
             {
                 i++;
             }

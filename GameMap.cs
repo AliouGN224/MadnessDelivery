@@ -37,7 +37,7 @@ public class GameMap
     
     public void Update(GameTime gameTime)
     {
-        GererDeplacementLivreur(gameTime);
+        //GererDeplacementLivreur(gameTime);
     }
     
     // Chargement des textures
@@ -45,7 +45,7 @@ public class GameMap
     {
         texHerbe = content.Load<Texture2D>("vegetations/lightGreenBorders");
         // ---------- Texture livreur et initailisation du livreur ---------------
-        texturesLivreur = new Dictionary<Orientation, Texture2D>();
+        /*texturesLivreur = new Dictionary<Orientation, Texture2D>();
         texturesLivreur[Orientation.NORD_EST]  = content.Load<Texture2D>("livreur/livreurNE");
         texturesLivreur[Orientation.SUD_EST]   = content.Load<Texture2D>("livreur/livreurSE");
         texturesLivreur[Orientation.SUD_OUEST] = content.Load<Texture2D>("livreur/livreurSW");
@@ -59,7 +59,7 @@ public class GameMap
             Orientation = Orientation.SUD_EST,  // orientation de départ
             Vitesse = 0.1f
         };
-        orientationCouranteLivreur = Orientation.SUD_EST;
+        orientationCouranteLivreur = Orientation.SUD_EST;*/
         
         // ---------- Texture Routes---------------
         texturesRoutes = new Dictionary<TypeRoute, Dictionary<Orientation, Texture2D>>();
