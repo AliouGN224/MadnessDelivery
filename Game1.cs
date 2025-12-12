@@ -18,6 +18,41 @@ public class Game1 : Game
     
     private GameGrid grid;
     private GameMap gameMap;
+    
+    private EtatJeu etatCourant = EtatJeu.MENU_PRINCIPAL;
+    
+    string[] menu =
+    {
+        "Se connecter pour jouer",
+        "S'inscrire pour jouer",
+        "Voir les meilleurs scores",
+        "Quitter"
+    };
+    int selectedIndex = 0;
+    KeyboardState keyboardPrecedent;
+    Texture2D menuBackground;
+    SpriteFont menuFont;
+    
+    string nomSaisi = "";
+    string prenomSaisi = "";
+    bool saisieNom = true;   // true = on saisit le nom, false = prénom
+    string messageConnexion = "";
+
+    Joueur joueurConnecte;
+    Joueurs joueurs = new Joueurs { _Joueurs = new List<Joueur>() };
+    List<Joueur> listeJoueurs = new();
+    int indexJoueurSelectionne = 0;
+    
+    string[] niveaux = { "FACILE", "MOYEN", "DIFFICILE" };
+    int indexNiveauSelectionne = 0;
+    string niveauChoisi;
+    
+    int tempsLimite;          // en secondes
+    float tempsRestant;
+    int nbMaisonsALivrer;
+    int scorePartie;
+    bool partieInitialisee = false;
+    
     /*private Routes routes;
 
     [XmlElement("routes")]
@@ -74,7 +109,7 @@ public class Game1 : Game
     protected override void Initialize()
     {
         grid = new GameGrid();
-        
+        keyboardPrecedent = Keyboard.GetState();   
         GameLogic.MadnessDelivery madnessDelivery = new GameLogic.MadnessDelivery
         {
             _Routes = new Routes{ListeRoute = new List<Route>()},
@@ -127,6 +162,8 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+        menuBackground = Content.Load<Texture2D>("autres/menu");
+        menuFont = Content.Load<SpriteFont>("font/MenuFont");
         gameMap.LoadContent(Content);
         //Texture2D shipTexture = Content.Load<Texture2D>("vegetations/lightGreen");
         //_ship = new Sprite(shipTexture, new Vector2(5, 5), 10);
@@ -134,23 +171,371 @@ public class Game1 : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-            Keyboard.GetState().IsKeyDown(Keys.Escape))
+        var keyboard = Keyboard.GetState();
+        
+        if (keyboard.IsKeyDown(Keys.Escape) && etatCourant == EtatJeu.MENU_PRINCIPAL)
             Exit();
-        //_ship.Update(gameTime);
-        gameMap.Update(gameTime);
+        
+        switch (etatCourant)
+        {
+            case EtatJeu.MENU_PRINCIPAL:
+                UpdateMenu();
+                break;
+            
+            case EtatJeu.CONNEXION:
+                UpdateConnexion();
+                break;
+            
+            case EtatJeu.CHOIX_NIVEAU:
+                UpdateChoixNiveau();
+                break;
+            
+            case EtatJeu.JEU:
+                if (!partieInitialisee)
+                    InitialiserPartieSelonNiveau();
+
+                gameMap.Update(gameTime);
+                
+                
+                if (gameMap.LivraisonEffectuee) //Si une livraison vient d’avoir lieu +10points
+                    scorePartie += 10;
+                
+                MettreAJourTimer(gameTime);
+                VerifierFinPartie();
+                break;
+        }
+
         base.Update(gameTime);
+        
+        
+        
+        /*if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+            Keyboard.GetState().IsKeyDown(Keys.Escape))
+            Exit();*/
+        //_ship.Update(gameTime);
+        //gameMap.Update(gameTime);
+        //base.Update(gameTime);
     }
+    
+    
+
 
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        
+        switch (etatCourant)
+        {
+            case EtatJeu.MENU_PRINCIPAL :
+                DrawMenu();
+                break;
+
+            case EtatJeu.JEU:
+                gameMap.Draw(_spriteBatch);
+                DrawHUD();
+                break;
+            
+            case EtatJeu.CONNEXION:
+                DrawConnexion();
+                break;
+            
+            case EtatJeu.CHOIX_NIVEAU:
+                DrawChoixNiveau();
+                break;
+        }
+        
         //_ship.Draw(_spriteBatch);
-        gameMap.Draw(_spriteBatch);
+        //gameMap.Draw(_spriteBatch);
         _spriteBatch.End();
 
         base.Draw(gameTime);
     }
+    
+    // =======================   PARTIE MENU PRINCIPAL =======================
+
+    
+    void ValiderMenu()
+    {
+        switch (selectedIndex)
+        {
+            case 0:
+                joueurs.DeserialiserJoueurs("data/xml/joueurs.xml");
+                listeJoueurs = joueurs._Joueurs;
+                indexJoueurSelectionne = 0;
+                etatCourant = EtatJeu.CONNEXION;
+                break;
+
+            case 1:
+                etatCourant = EtatJeu.JEU; // temporaire
+                break;
+
+            case 2:
+                // plus tard : affichage scores
+                break;
+
+            case 3:
+                Exit();
+                break;
+        }
+    }
+    
+    void DrawMenu()
+    {
+        Vector2 positionTitre = new Vector2(250, 120);
+        Vector2 positionDepart = new Vector2(300, 220);
+
+        _spriteBatch.Draw(menuBackground,
+            new Rectangle(0, 0,
+                GraphicsDevice.Viewport.Width,
+                GraphicsDevice.Viewport.Height),
+            Color.White);
+        
+        for (int i = 0; i < menu.Length; i++)
+        {
+            Color color = (i == selectedIndex) ? Color.Blue : Color.Black;
+
+            _spriteBatch.DrawString(
+                menuFont,
+                menu[i],
+                positionDepart + new Vector2(0, i * 40),
+                color
+            );
+        }
+    }
+    
+    void UpdateMenu()
+    {
+        KeyboardState keyboard = Keyboard.GetState();
+
+        if (keyboard.IsKeyDown(Keys.Down) && keyboardPrecedent.IsKeyUp(Keys.Down))
+            selectedIndex = (selectedIndex + 1) % menu.Length;
+
+        if (keyboard.IsKeyDown(Keys.Up) && keyboardPrecedent.IsKeyUp(Keys.Up))
+            selectedIndex = (selectedIndex - 1 + menu.Length) % menu.Length;
+
+        if (keyboard.IsKeyDown(Keys.Enter) && keyboardPrecedent.IsKeyUp(Keys.Enter))
+            ValiderMenu();
+
+        keyboardPrecedent = keyboard;
+    }
+    
+    // =======================   PARTIE CONNEXION =======================
+    void UpdateConnexion()
+    {
+        KeyboardState keyboard = Keyboard.GetState();
+
+        if (listeJoueurs.Count == 0)
+            return;
+
+        if (keyboard.IsKeyDown(Keys.Down) && keyboardPrecedent.IsKeyUp(Keys.Down))
+            indexJoueurSelectionne = (indexJoueurSelectionne + 1) % listeJoueurs.Count;
+
+        if (keyboard.IsKeyDown(Keys.Up) && keyboardPrecedent.IsKeyUp(Keys.Up))
+            indexJoueurSelectionne = (indexJoueurSelectionne - 1 + listeJoueurs.Count) % listeJoueurs.Count;
+
+        if (keyboard.IsKeyDown(Keys.Enter) && keyboardPrecedent.IsKeyUp(Keys.Enter))
+        {
+            joueurConnecte = listeJoueurs[indexJoueurSelectionne];
+            etatCourant = EtatJeu.CHOIX_NIVEAU;
+        }
+
+        if (keyboard.IsKeyDown(Keys.Escape) && keyboardPrecedent.IsKeyUp(Keys.Escape))
+            etatCourant = EtatJeu.MENU_PRINCIPAL;
+        
+        keyboardPrecedent = keyboard;
+    }
+    
+    void ValiderConnexion()
+    {
+        joueurs.DeserialiserJoueurs("data/xml/joueurs.xml");
+
+        foreach (var j in joueurs._Joueurs)
+        {
+            if (j.Nom.Equals(nomSaisi, StringComparison.OrdinalIgnoreCase) &&
+                j.Prenom.Equals(prenomSaisi, StringComparison.OrdinalIgnoreCase))
+            {
+                joueurConnecte = j;
+                etatCourant = EtatJeu.CHOIX_NIVEAU;
+                return;
+            }
+        }
+
+        messageConnexion = "Joueur introuvable";
+    }
+    
+    void DrawConnexion()
+    {
+        _spriteBatch.Draw(menuBackground,
+            new Rectangle(0, 0,
+                GraphicsDevice.Viewport.Width,
+                GraphicsDevice.Viewport.Height),
+            Color.White);
+
+        Vector2 pos = new Vector2(300, 200);
+
+        _spriteBatch.DrawString(menuFont, "SELECTION DU JOUEUR", pos, Color.Black);
+        pos.Y += 60;
+
+        if (listeJoueurs.Count == 0)
+        {
+            _spriteBatch.DrawString(menuFont,
+                "Aucun joueur enregistre",
+                pos, Color.Red);
+            return;
+        }
+
+        for (int i = 0; i < listeJoueurs.Count; i++)
+        {
+            Color color = (i == indexJoueurSelectionne) ? Color.Blue : Color.Black;
+
+            string texte = $"{listeJoueurs[i].Nom} {listeJoueurs[i].Prenom}";
+
+            _spriteBatch.DrawString(
+                menuFont,
+                texte,
+                pos + new Vector2(0, i * 40),
+                color
+            );
+        }
+
+        pos.Y += listeJoueurs.Count * 40 + 40;
+
+        _spriteBatch.DrawString(menuFont,
+            "ENTREE : valider | ESC : retour",
+            pos, Color.DarkGray);
+    }
+    
+    // =======================   PARTIE Choix du niveau =======================
+    
+    void UpdateChoixNiveau()
+    {
+        KeyboardState keyboard = Keyboard.GetState();
+
+        if (keyboard.IsKeyDown(Keys.Down) && keyboardPrecedent.IsKeyUp(Keys.Down))
+            indexNiveauSelectionne = (indexNiveauSelectionne + 1) % niveaux.Length;
+
+        if (keyboard.IsKeyDown(Keys.Up) && keyboardPrecedent.IsKeyUp(Keys.Up))
+            indexNiveauSelectionne = (indexNiveauSelectionne - 1 + niveaux.Length) % niveaux.Length;
+
+        if (keyboard.IsKeyDown(Keys.Enter) && keyboardPrecedent.IsKeyUp(Keys.Enter))
+        {
+            niveauChoisi = niveaux[indexNiveauSelectionne];
+            etatCourant = EtatJeu.JEU; // la partie commence
+        }
+
+        if (keyboard.IsKeyDown(Keys.Escape) && keyboardPrecedent.IsKeyUp(Keys.Escape))
+            etatCourant = EtatJeu.CONNEXION;
+
+        keyboardPrecedent = keyboard;
+    }
+    
+    
+    void DrawChoixNiveau()
+    {
+        _spriteBatch.Draw(menuBackground,
+            new Rectangle(0, 0,
+                GraphicsDevice.Viewport.Width,
+                GraphicsDevice.Viewport.Height),
+            Color.White);
+
+        Vector2 pos = new Vector2(300, 220);
+
+        _spriteBatch.DrawString(menuFont, "CHOIX DU NIVEAU", pos, Color.Black);
+        pos.Y += 60;
+
+        for (int i = 0; i < niveaux.Length; i++)
+        {
+            Color color = (i == indexNiveauSelectionne) ? Color.Yellow : Color.Black;
+
+            _spriteBatch.DrawString(
+                menuFont,
+                niveaux[i],
+                pos + new Vector2(0, i * 40),
+                color
+            );
+        }
+
+        pos.Y += niveaux.Length * 40 + 40;
+
+        _spriteBatch.DrawString(menuFont,
+            "ENTREE : valider | ESC : retour",
+            pos, Color.DarkGray);
+    }
+    
+    // =======================   INITIALISATION DE LA PARTIE SELON LE NIVEAU =======================
+    void InitialiserPartieSelonNiveau()
+    {
+        switch (niveauChoisi)
+        {
+            case "FACILE":
+                nbMaisonsALivrer = 5;
+                tempsLimite = 150;
+                break;
+
+            case "MOYEN":
+                nbMaisonsALivrer = 7;
+                tempsLimite = 110;
+                break;
+
+            case "DIFFICILE":
+                nbMaisonsALivrer = 10;
+                tempsLimite = 90;
+                break;
+        }
+
+        tempsRestant = tempsLimite;
+        scorePartie = 0;
+
+        gameMap.InitialiserMaisonsALivrer(nbMaisonsALivrer);
+
+        partieInitialisee = true;
+    }
+    
+    void MettreAJourTimer(GameTime gameTime)
+    {
+        tempsRestant -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+    }
+    
+    void VerifierFinPartie()
+    {
+        if (tempsRestant <= 0)
+        {
+            // Défaite
+            etatCourant = EtatJeu.FIN_PARTIE;
+            partieInitialisee = false;
+        }
+
+        if (gameMap.ToutesMaisonsLivrees())
+        {
+            // Victoire
+            etatCourant = EtatJeu.FIN_PARTIE;
+            partieInitialisee = false;
+        }
+    }
+    
+    //  Tableau d'affichage 
+    
+    void DrawHUD()
+    {
+        if (!partieInitialisee || nbMaisonsALivrer == 0)
+            return;
+        
+        Vector2 pos = new Vector2(20, 20);
+
+        string timerTxt = "Temps : " + Math.Max(0, (int)tempsRestant) + " s";
+        string maisonsTxt = "Maisons : " + gameMap.GetNbMaisonsRestantes() + " / " + nbMaisonsALivrer;
+        string scoreTxt = "Score : " + scorePartie;
+
+        _spriteBatch.DrawString(menuFont, timerTxt, pos, Color.White);
+        pos.Y += 30;
+
+        _spriteBatch.DrawString(menuFont, maisonsTxt, pos, Color.White);
+        pos.Y += 30;
+
+        _spriteBatch.DrawString(menuFont, scoreTxt, pos, Color.White);
+    }
+    
+    
 }
