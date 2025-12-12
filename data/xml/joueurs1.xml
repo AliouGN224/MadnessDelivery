@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ueursjo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.univ-grenoble-alpes.fr/l3miage/delivery">
+<joueurs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.univ-grenoble-alpes.fr/l3miage/delivery">
   <joueur id="111">
     <nom>diallo</nom>
     <prenom>python</prenom>
@@ -59,4 +59,8 @@
       </niveau>
     </niveaux>
   </joueur>
-</ueursjo>
+  <joueur id="444">
+    <nom>balde</nom>
+    <prenom>oumar</prenom>
+  </joueur>
+</joueurs>

@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using MadnessDelivery.GameLogic;
 
+Joueurs j = new Joueurs();
+j.interfaceGraphique();
+
 Score score =  new Score{ValeurScore = 3};
 Score score1 =  new Score{ValeurScore = 4};
 Score score2 =  new Score{ValeurScore = 5};
