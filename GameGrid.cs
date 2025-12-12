@@ -32,7 +32,7 @@ public class GameGrid
         float isoX = (col - row) * (TILE_SIZE / 2f);
         float isoY = (col + row) * (TILE_SIZE / 4f);
 
-        return new Vector2(isoX + offset.X, isoY + isoY);
+        return new Vector2(isoX + offset.X, isoY + offset.Y);
     }
      
 
