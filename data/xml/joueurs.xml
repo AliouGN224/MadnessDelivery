@@ -16,7 +16,7 @@
         </scores>
       </niveau>
       <niveau>
-        <difficulte>MOYEN</difficulte>
+        <difficulte>DIFFICILE</difficulte>
         <scores>
           <score>
             <valeurScore>3</valeurScore>
@@ -29,6 +29,20 @@
           </score>
         </scores>
       </niveau>
+        <niveau>
+            <difficulte>MOYEN</difficulte>
+            <scores>
+                <score>
+                    <valeurScore>3</valeurScore>
+                </score>
+                <score>
+                    <valeurScore>2</valeurScore>
+                </score>
+                <score>
+                    <valeurScore>4</valeurScore>
+                </score>
+            </scores>
+        </niveau>
     </niveaux>
   </joueur>
   <joueur id="222">
@@ -57,6 +71,20 @@
           </score>
         </scores>
       </niveau>
+        <niveau>
+            <difficulte>FACILE</difficulte>
+            <scores>
+                <score>
+                    <valeurScore>3</valeurScore>
+                </score>
+                <score>
+                    <valeurScore>2</valeurScore>
+                </score>
+                <score>
+                    <valeurScore>4</valeurScore>
+                </score>
+            </scores>
+        </niveau>
     </niveaux>
   </joueur>
 </joueurs>
