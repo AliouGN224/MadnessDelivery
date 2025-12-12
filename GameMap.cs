@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using MadnessDelivery.GameLogic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -19,13 +22,22 @@ public class GameMap
     private Dictionary<TypeRoute, Dictionary<Orientation, Texture2D>> texturesRoutes;
     private Dictionary<TypeMaison, Texture2D> texturesMaisons;
     private Dictionary<Orientation, Texture2D> texturesLivreur;
+    private Texture2D texIconeLivraison;
+    private Texture2D texHalo;
+    private SoundEffect sonLivraison;
+    
+    private float clignotementTimer = 0f;
+    private bool clignotementVisible = true;
     
     private Orientation orientationCouranteLivreur = Orientation.NORD_EST;
     
     public float Echelle = 0.49f; // 50% de la taille d’origine
     public float EchelleMaison = 0.30f;  //  0.70 et 0.90
     public float EchelleLivreur = 0.05f;
+    public float EchelleEtiquette = 0.03f;
     private KeyboardState oldState;
+    
+    public bool LivraisonEffectuee { get; private set; }
     
     public GameMap(GameGrid grid, Routes routes, Maisons maisons)
     {
@@ -37,7 +49,14 @@ public class GameMap
     
     public void Update(GameTime gameTime)
     {
+        clignotementTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        if (clignotementTimer >= 0.8f) // toutes les 0.8 secondes, clignote
+        {
+            clignotementVisible = !clignotementVisible;
+            clignotementTimer = 0f;
+        }
         GererDeplacementLivreur(gameTime);
+        VerifierLivraisonMaisons();
     }
     
     // Chargement des textures
@@ -116,6 +135,11 @@ public class GameMap
 
         texturesMaisons[TypeMaison.BOUTIQUE_A] = content.Load<Texture2D>("maisons/shop0");
         texturesMaisons[TypeMaison.BOUTIQUE_B] = content.Load<Texture2D>("maisons/shop1");
+        
+        sonLivraison = content.Load<SoundEffect>("sons/livraisonOk");
+        
+        //texIconeLivraison = content.Load<Texture2D>("autres/estALivrer"); 
+        //texHalo = content.Load<Texture2D>("autres/estALivrer_");
     }
     
     // Affichage de la grille
@@ -189,6 +213,13 @@ public class GameMap
             // Récupérer la texture selon TypeMaison
             Texture2D tex = texturesMaisons[m._Type];
 
+            // --- SI maison à livrer → on clignote ---
+            if (m.EstALivrer && !clignotementVisible)
+            {
+                // on SKIP l'affichage dans ce frame
+                continue;
+            }
+            
             sb.Draw(
                 tex,
                 posEcran,
@@ -200,6 +231,23 @@ public class GameMap
                 SpriteEffects.None,
                 0f
             );
+            
+            // icône si maison à livrer 
+           /* if (m.EstALivrer)
+            {
+                Vector2 posIcone = posEcran;
+                sb.Draw(
+                    texIconeLivraison,
+                    posIcone,
+                    null,
+                    Color.White,
+                    0f,
+                    Vector2.Zero,
+                    EchelleEtiquette,
+                    SpriteEffects.None,
+                    0f
+                );
+            }*/
         }
     }
     
@@ -312,6 +360,90 @@ public class GameMap
             (ancienne == Orientation.SUD_OUEST && nouvelle == Orientation.NORD_EST) ||
             (ancienne == Orientation.NORD_OUEST && nouvelle == Orientation.SUD_EST) ||
             (ancienne == Orientation.SUD_EST   && nouvelle == Orientation.NORD_OUEST);
+    }
+    
+    private void VerifierLivraisonMaisons()
+    {
+        LivraisonEffectuee = false;
+        int lx = (int)livreur.PositionJeu.X;
+        int ly = (int)livreur.PositionJeu.Y;
+
+        foreach (Maison m in maisons.getToutesLesMaisons())
+        {
+            if (!m.EstALivrer) 
+                continue;
+
+            int mx = m.Position._X;
+            int my = m.Position._Y;
+
+            int dist = Math.Abs(lx - mx) + Math.Abs(ly - my);
+
+            // 0 = même case ; 1 = case adjacente
+            if (dist <= 1)
+            {
+                // Livraison validée !
+                m.EstALivrer = false;
+                m.AEteLivrer = true;
+
+                sonLivraison?.Play();
+                LivraisonEffectuee = true;
+
+                break;
+            }
+        }
+    }
+    
+    
+    public void InitialiserMaisonsALivrer(int nbMaisons)
+    {
+        // Reset de toutes les maisons
+        foreach (Maison m in maisons.getToutesLesMaisons())
+        {
+            m.EstALivrer = false;
+            m.AEteLivrer = false;
+        }
+
+        Random r = new Random();
+
+        var candidates = maisons
+            .getToutesLesMaisons()
+            .Where(m => m._Type != TypeMaison.DEPART)
+            .ToList();
+
+        int nbAChoisir = Math.Min(nbMaisons, candidates.Count);
+
+        var selection = candidates
+            .OrderBy(x => r.Next())
+            .Take(nbAChoisir)
+            .ToList();
+
+        foreach (var m in selection)
+        {
+            m.EstALivrer = true;
+            m.AEteLivrer = false;
+        }
+    }
+    
+    
+    public bool ToutesMaisonsLivrees()
+    {
+        foreach (Maison m in maisons.getToutesLesMaisons())
+        {
+            if (m.EstALivrer)
+                return false;
+        }
+        return true;
+    }
+    
+    public int GetNbMaisonsRestantes()
+    {
+        int i = 0;
+        foreach (Maison m in maisons.getToutesLesMaisons())
+        {
+            if (m.EstALivrer)
+                i++;
+        }
+        return i;
     }
     
 }
