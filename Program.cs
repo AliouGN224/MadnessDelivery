@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using MadnessDelivery.GameLogic;
 
-Joueurs j = new Joueurs();
-j.interfaceGraphique();
+/*Joueurs j = new Joueurs();
+j.interfaceGraphique();*/
 
 Score score =  new Score{ValeurScore = 3};
 Score score1 =  new Score{ValeurScore = 4};

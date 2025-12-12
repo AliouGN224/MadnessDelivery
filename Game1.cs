@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml.Serialization;
 using MadnessDelivery.GameLogic;
 using Microsoft.Xna.Framework;
@@ -47,11 +48,16 @@ public class Game1 : Game
     int indexNiveauSelectionne = 0;
     string niveauChoisi;
     
-    int tempsLimite;          // en secondes
+    int tempsLimite;         
     float tempsRestant;
     int nbMaisonsALivrer;
     int scorePartie;
     bool partieInitialisee = false;
+    bool victoire;
+    
+    string joueursPath = Path.Combine(AppContext.BaseDirectory, "data/xml/joueurs.xml");
+    
+    Dictionary<string, BestScoresReader.ScoreInfo> meilleursScores;
     
     /*private Routes routes;
 
@@ -203,6 +209,10 @@ public class Game1 : Game
                 MettreAJourTimer(gameTime);
                 VerifierFinPartie();
                 break;
+            
+            case EtatJeu.FIN_PARTIE:
+                UpdateFinPartie();
+                break;
         }
 
         base.Update(gameTime);
@@ -244,6 +254,9 @@ public class Game1 : Game
             case EtatJeu.CHOIX_NIVEAU:
                 DrawChoixNiveau();
                 break;
+            case EtatJeu.FIN_PARTIE:
+                DrawFinPartie();
+                break;
         }
         
         //_ship.Draw(_spriteBatch);
@@ -261,7 +274,7 @@ public class Game1 : Game
         switch (selectedIndex)
         {
             case 0:
-                joueurs.DeserialiserJoueurs("data/xml/joueurs.xml");
+                joueurs.DeserialiserJoueurs(joueursPath);
                 listeJoueurs = joueurs._Joueurs;
                 indexJoueurSelectionne = 0;
                 etatCourant = EtatJeu.CONNEXION;
@@ -272,7 +285,9 @@ public class Game1 : Game
                 break;
 
             case 2:
-                // plus tard : affichage scores
+                var meilleurs = BestScoresReader.LireMeilleursScores("data/xml/joueurs.xml");
+                meilleursScores = meilleurs; // Stocké pour Draw
+                etatCourant = EtatJeu.AFFICHAGE_SCORES;
                 break;
 
             case 3:
@@ -349,7 +364,7 @@ public class Game1 : Game
     
     void ValiderConnexion()
     {
-        joueurs.DeserialiserJoueurs("data/xml/joueurs.xml");
+        joueurs.DeserialiserJoueurs(joueursPath);
 
         foreach (var j in joueurs._Joueurs)
         {
@@ -447,7 +462,7 @@ public class Game1 : Game
 
         for (int i = 0; i < niveaux.Length; i++)
         {
-            Color color = (i == indexNiveauSelectionne) ? Color.Yellow : Color.Black;
+            Color color = (i == indexNiveauSelectionne) ? Color.Blue : Color.Black;
 
             _spriteBatch.DrawString(
                 menuFont,
@@ -470,17 +485,17 @@ public class Game1 : Game
         switch (niveauChoisi)
         {
             case "FACILE":
-                nbMaisonsALivrer = 5;
+                nbMaisonsALivrer = 2;
                 tempsLimite = 150;
                 break;
 
             case "MOYEN":
-                nbMaisonsALivrer = 7;
+                nbMaisonsALivrer = 4;
                 tempsLimite = 110;
                 break;
 
             case "DIFFICILE":
-                nbMaisonsALivrer = 10;
+                nbMaisonsALivrer = 5;
                 tempsLimite = 90;
                 break;
         }
@@ -503,6 +518,7 @@ public class Game1 : Game
         if (tempsRestant <= 0)
         {
             // Défaite
+            SauvegarderScoreFinal();
             etatCourant = EtatJeu.FIN_PARTIE;
             partieInitialisee = false;
         }
@@ -510,6 +526,8 @@ public class Game1 : Game
         if (gameMap.ToutesMaisonsLivrees())
         {
             // Victoire
+            victoire = true;
+            SauvegarderScoreFinal();
             etatCourant = EtatJeu.FIN_PARTIE;
             partieInitialisee = false;
         }
@@ -537,5 +555,91 @@ public class Game1 : Game
         _spriteBatch.DrawString(menuFont, scoreTxt, pos, Color.White);
     }
     
+    // ================================= FIN DE MANCHE
+    void UpdateFinPartie()
+    {
+        KeyboardState keyboard = Keyboard.GetState();
+
+        if (keyboard.IsKeyDown(Keys.Enter) && keyboardPrecedent.IsKeyUp(Keys.Enter))
+        {
+            etatCourant = EtatJeu.MENU_PRINCIPAL;
+        }
+
+        keyboardPrecedent = keyboard;
+    }
+    
+    
+    void DrawFinPartie()
+    {
+        _spriteBatch.Draw(menuBackground,
+            new Rectangle(0, 0,
+                GraphicsDevice.Viewport.Width,
+                GraphicsDevice.Viewport.Height),
+            Color.White);
+
+        Vector2 pos = new Vector2(300, 250);
+
+        string titre = gameMap.ToutesMaisonsLivrees() ? "VICTOIRE !" : "DEFAITE";
+
+        _spriteBatch.DrawString(menuFont, titre, pos, Color.Blue);
+        pos.Y += 60;
+
+        _spriteBatch.DrawString(menuFont,
+            "Score final : " + scorePartie,
+            pos, Color.Black);
+
+        pos.Y += 60;
+
+        _spriteBatch.DrawString(menuFont,
+            "ENTREE : retour menu",
+            pos, Color.DarkGray);
+    }
+    
+    void SauvegarderScoreFinal()
+    {
+        ScoresDOM scoresDom = new ScoresDOM("../../../data/xml/joueurs.xml");
+
+        scoresDom.AddScore(
+            joueurConnecte.JoueurId,
+            niveauChoisi,
+            (uint)scorePartie
+        );
+        
+        
+        /*Scores scores = new Scores();
+        string path = Path.GetFullPath("../../../data/xml/joueurs.xml");
+        Console.WriteLine("XML PATH = " + path);
+        scores.AddScore(
+            "../../../data/xml/joueurs.xml",
+            joueurConnecte.JoueurId,
+            niveauChoisi,
+            (uint)scorePartie
+        );*/
+    }
+    
+    void DrawMeilleursScores()
+    {
+        _spriteBatch.Draw(menuBackground,
+            new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height),
+            Color.White);
+
+        Vector2 pos = new Vector2(250, 200);
+
+        _spriteBatch.DrawString(menuFont, "MEILLEURS SCORES", pos, Color.Black);
+        pos.Y += 80;
+
+        foreach (var niveau in new[] {"FACILE", "MOYEN", "DIFFICILE"})
+        {
+            var info = meilleursScores[niveau];
+
+            string txt = $"{niveau} : {info.Score} points — par {info.Nom} {info.Prenom}";
+            _spriteBatch.DrawString(menuFont, txt, pos, Color.Blue);
+
+            pos.Y += 50;
+        }
+
+        pos.Y += 40;
+        _spriteBatch.DrawString(menuFont, "ENTREE : retour", pos, Color.DarkGray);
+    }
     
 }

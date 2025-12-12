@@ -7,5 +7,6 @@ public enum EtatJeu
     CONNEXION,
     INSCRIPTION,
     CHOIX_NIVEAU,
-    FIN_PARTIE
+    FIN_PARTIE,
+    AFFICHAGE_SCORES
 }
