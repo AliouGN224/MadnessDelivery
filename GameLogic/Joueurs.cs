@@ -132,8 +132,6 @@ public class Joueurs
                 
                 this.AddJoueur(joueur);
                 this.serialiserJoueurs("../../../data/xml/joueurs.xml");
-                Console.WriteLine("Fichier écrit ici : " + Path.GetFullPath("../../../data/xml/joueurs.xml"));
-
                 joueurfinal = joueur;
                 Console.WriteLine("Enregistrement réussi avec succés"); 
             }
