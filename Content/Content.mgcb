@@ -92,6 +92,13 @@
 /processorParam:TextureFormat=Compressed
 /build:font/File.spritefont;font/MenuFont.spritefont
 
+#begin font/FontMenu.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:font/FontMenu.spritefont
+
 #begin livreur/livreurNE.png
 /importer:TextureImporter
 /processor:TextureProcessor

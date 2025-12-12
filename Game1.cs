@@ -54,6 +54,7 @@ public class Game1 : Game
     int scorePartie;
     bool partieInitialisee = false;
     bool victoire;
+    KeyboardState kbPrevious;
     
     string joueursPath = Path.Combine(AppContext.BaseDirectory, "data/xml/joueurs.xml");
     
@@ -169,7 +170,7 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         menuBackground = Content.Load<Texture2D>("autres/menu");
-        menuFont = Content.Load<SpriteFont>("font/MenuFont");
+        menuFont = Content.Load<SpriteFont>("font/FontMenu");
         gameMap.LoadContent(Content);
         //Texture2D shipTexture = Content.Load<Texture2D>("vegetations/lightGreen");
         //_ship = new Sprite(shipTexture, new Vector2(5, 5), 10);
@@ -212,6 +213,10 @@ public class Game1 : Game
             
             case EtatJeu.FIN_PARTIE:
                 UpdateFinPartie();
+                break;
+            
+            case EtatJeu.AFFICHAGE_SCORES:
+                UpdateMeilleursScores();
                 break;
         }
 
@@ -257,6 +262,10 @@ public class Game1 : Game
             case EtatJeu.FIN_PARTIE:
                 DrawFinPartie();
                 break;
+            
+            case EtatJeu.AFFICHAGE_SCORES:
+                DrawMeilleursScores();
+                break;
         }
         
         //_ship.Draw(_spriteBatch);
@@ -285,8 +294,8 @@ public class Game1 : Game
                 break;
 
             case 2:
-                var meilleurs = BestScoresReader.LireMeilleursScores("data/xml/joueurs.xml");
-                meilleursScores = meilleurs; // Stocké pour Draw
+                var meilleurs = BestScoresReader.LireMeilleursScores("../../../data/xml/joueurs.xml");
+                meilleursScores = meilleurs; 
                 etatCourant = EtatJeu.AFFICHAGE_SCORES;
                 break;
 
@@ -633,6 +642,13 @@ public class Game1 : Game
             var info = meilleursScores[niveau];
 
             string txt = $"{niveau} : {info.Score} points — par {info.Nom} {info.Prenom}";
+            foreach (char c in txt)
+            {
+                if (!menuFont.Characters.Contains(c))
+                    Console.WriteLine("CARACTÈRE MANQUANT : '" + c + "'  (code: " + (int)c + ")");
+            }
+            
+            
             _spriteBatch.DrawString(menuFont, txt, pos, Color.Blue);
 
             pos.Y += 50;
@@ -640,6 +656,17 @@ public class Game1 : Game
 
         pos.Y += 40;
         _spriteBatch.DrawString(menuFont, "ENTREE : retour", pos, Color.DarkGray);
+    }
+    
+    void UpdateMeilleursScores()
+    {
+        var kb = Keyboard.GetState();
+        if (kb.IsKeyDown(Keys.Enter) && kbPrevious.IsKeyUp(Keys.Enter))
+        {
+            etatCourant = EtatJeu.MENU_PRINCIPAL;
+        }
+
+        kbPrevious = kb;
     }
     
 }
